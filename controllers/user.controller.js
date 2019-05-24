@@ -84,7 +84,7 @@ module.exports.register = (req, res, next) => {
 
     user.save((err, doc) => {
         if(!err) {
-            res.send({
+            res.status(200).send({
              usuario: doc,
              mensaje: "Usuario registrado satifactoriamente"
             });
