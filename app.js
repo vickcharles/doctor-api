@@ -12,7 +12,7 @@ const requestRoutes = require('./routes/request.router');
 
 var app = express();
 
-// middleware
+// Middleware
 app.use(bodyParser.json());
 app.use(cors());
 app.use(passport.initialize());
@@ -31,6 +31,5 @@ app.use((err, req, res, next) => {
 });
 
 // start server
-
 var port = process.env.PORT || 3000;
 app.listen(port , () => console.log(`Server started at port : ${port}`));

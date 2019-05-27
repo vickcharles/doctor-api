@@ -106,7 +106,7 @@ module.exports.registerAndPostRequest = (req, res, next) => {
       lastName: req.body.user.apellido,
       cellPhone: req.body.user.telefono,
       city: req.body.user.ciudad,
-      role: 'User',
+      role: 'USER',
       email: req.body.user.correo,
       password: req.body.user.contrasena
     });
