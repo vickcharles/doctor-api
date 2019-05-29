@@ -11,6 +11,8 @@ const rtsIndex = require('./routes/index.router');
 const requestRoutes = require('./routes/request.router');
 
 var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 
 // Middleware
 app.use(bodyParser.json());
@@ -20,6 +22,14 @@ app.use(passport.initialize());
 //Api
 app.use('/api', rtsIndex);
 app.use('/api/request', requestRoutes);
+
+const Notifications = require('./socket/notifications')
+
+io.on('connection', function(socket) {
+  console.log('a user connected');
+    Notifications.newNotifications(socket, io)
+});
+
 
 // error handler
 app.use((err, req, res, next) => {
@@ -32,4 +42,4 @@ app.use((err, req, res, next) => {
 
 // start server
 var port = process.env.PORT || 3000;
-app.listen(port , () => console.log(`Server started at port : ${port}`));
+http.listen(port , () => console.log(`Server started at port : ${port}`));

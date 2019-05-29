@@ -37,7 +37,8 @@ module.exports.getUserAndUpdate = (req, res, next) => {
        if(error){
         res.status(400).send({
           isError: true,
-          mensaje: 'Error actualizando el usuario'
+          mensaje: 'Error actualizando el usuario',
+          error
         })
        }else{
         res.status(200).send({
@@ -72,7 +73,7 @@ module.exports.register = (req, res, next) => {
       lastName: req.body.apellido,
       cellPhone: req.body.telefono,
       role: req.body.role,
-      city: req.body.ciudad,
+      city: req.body.city,
       email: req.body.correo,
       password: req.body.contrasena
     });
@@ -167,7 +168,7 @@ module.exports.authenticate = (req, res, next) => {
         // error from passport middleware
         if (err) return res.status(400).json(err);
         // registered user
-        else if (user) return res.status(200).json({ "token": user.generateJwt() });
+        else if (user) return res.status(200).send({ token: user.generateJwt(), user});
         // unknown user or wrong password
         else return res.status(404).json(info);
     })(req, res);

@@ -56,22 +56,70 @@ module.exports.getAll = (req, res, next) => {
     })
 };
 
-module.exports.getById = (req, res, next) => {
-  const id = req.params.id;
-  Request.findById(id)
-  .populate("operadorId")
-  .exec((err, user) => {
+
+module.exports.getAllAdmin = (req, res, next) => {
+    Request.find({operadorId: req._id, estado: 'Recibido'})
+    .populate("usuario")
+    .exec((err, doc) => {
+        if(err) {
+            res.status(400).send({
+                isError: true,
+                mensaje: "Error crenado un nuevo request"
+            })
+           }
+           res.status(200).send({
+            isError: false,
+            mensaje: "Todos los requests",
+            requests: doc
+        })
+    })
+};
+
+module.exports.updateRequestStatus = (req, res, next) => {
+    Request.findOne({ _id: req.params.id })
+    .exec((err, request) => {
         if(err) {
             res.status(400).send({
                 isError: true,
                 mensaje: "error buscando request"
             })
            }
+        request.estado = req.body.status;
+        request.save((err, request) => {
+            if(err) {
+                res.status(400).send({
+                    isError: true,
+                    mensaje: "error actualizando request"
+                })
+            }
+
+            res.status(200).send({
+                isError: true,
+                mensaje: "Request actualizado satisfactoriamente",
+                request
+            });
+        })
+    })
+}
+
+module.exports.getById = (req, res, next) => {
+  const id = req.params.id;
+  Request.findById(id)
+  .populate("operadorId")
+  .populate("usuario")
+
+    .exec((err, request) => {
+        if(err) {
+            res.status(400).send({
+             isError: true,
+             mensaje: "error buscando request"
+            })
+        }
 
         res.status(200).send({
-            isError: false,
-            mensaje: "Bien",
-            request: user
+          isError: false,
+          mensaje: "Bien",
+          request: request
         })
     })
 };
