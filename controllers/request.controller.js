@@ -43,34 +43,74 @@ module.exports.getAll = (req, res, next) => {
     .populate("operadorId")
     .exec((err, doc) => {
         if(err) {
-            res.status(400).send({
-                isError: true,
-                mensaje: "Error crenado un nuevo request"
-            })
-           }
-           res.status(200).send({
-            isError: false,
-            mensaje: "Todos los requests",
-            requests: doc
+          res.status(400).send({
+            isError: true,
+            mensaje: "Error crenado un nuevo request"
+          })
+        }
+        res.status(200).send({
+          isError: false,
+          mensaje: "Todos los requests",
+          requests: doc
         })
     })
 };
 
 
+module.exports.getAllByStatus = (req, res, next) => {
+    Request.find({ usuario: req._id, estado: req.body.status })
+    .populate("operadorId")
+    .exec((err, doc) => {
+        if(err) {
+            res.status(400).send({
+              isError: true,
+              mensaje: "Error crenado un nuevo request"
+            })
+        }
+        res.status(200).send({
+          isError: false,
+          mensaje: "Todos los requests",
+          requests: doc
+        })
+    })
+};
+
+
+// Admin
+
 module.exports.getAllAdmin = (req, res, next) => {
-    Request.find({operadorId: req._id, estado: 'Recibido'})
+    Request.find({operadorId: req._id})
     .populate("usuario")
     .exec((err, doc) => {
         if(err) {
             res.status(400).send({
-                isError: true,
-                mensaje: "Error crenado un nuevo request"
-            })
-           }
-           res.status(200).send({
-            isError: false,
-            mensaje: "Todos los requests",
-            requests: doc
+              isError: true,
+              mensaje: "Error creando un nuevo request"
+            });
+        }
+        res.status(200).send({
+          isError: false,
+          mensaje: "Todos los requests",
+          requests: doc
+        })
+    })
+};
+
+
+module.exports.getAllAdminByStatus = (req, res, next) => {
+    Request.find({operadorId: req._id, estado: req.body.status})
+    .populate("usuario")
+    .exec((err, doc) => {
+        if(err) {
+            res.status(400).send({
+              isError: true,
+              mensaje: "Error creando un nuevo request"
+            });
+        }
+        res.status(200).send({
+          isError: false,
+          mensaje: "Todos los requests",
+          requests: doc
         })
     })
 };
@@ -103,6 +143,7 @@ module.exports.updateRequestStatus = (req, res, next) => {
 }
 
 module.exports.getById = (req, res, next) => {
+
   const id = req.params.id;
   Request.findById(id)
   .populate("operadorId")

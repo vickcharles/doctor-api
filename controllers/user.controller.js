@@ -29,8 +29,7 @@ module.exports.getUserAndUpdate = (req, res, next) => {
       name:req.body.nombre,
       lastName: req.body.apellido,
       city: req.body.ciudad,
-      cellPhone: req.body.telefono,
-      email: req.body.correo
+      cellPhone: req.body.telefono
     }
 
     User.findOneAndUpdate(userId, user, function(error, user) {

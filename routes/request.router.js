@@ -21,5 +21,3 @@ router.put('/update/status/:id', ctrlRequest.updateRequestStatus);
 
 module.exports = router;
 
-
-

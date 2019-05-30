@@ -21,7 +21,7 @@ const requestSchema = new mongoose.Schema({
 	mensaje: String,
 	estado: {
 		type: String,
-		default: 'Recibido'
+		default: 'recibido'
 	},
 	operadorId: {
 		type: Schema.ObjectId,
