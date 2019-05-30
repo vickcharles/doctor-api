@@ -26,7 +26,6 @@ app.use('/api/request', requestRoutes);
 const Notifications = require('./socket/notifications')
 
 io.on('connection', function(socket) {
-  console.log('a user connected');
     Notifications.newNotifications(socket, io)
 });
 
