@@ -39,7 +39,7 @@ module.exports.getUserAndUpdate = (req, res, next) => {
           mensaje: 'Error actualizando el usuario',
           error
         })
-       }else{
+       } else {
         res.status(200).send({
           isError: true,
           mensaje: 'Usuario actualizado satisfactoriemnete',
