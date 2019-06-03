@@ -12,7 +12,7 @@ router.post('/create', jwtHelper.verifyJwtToken, ctrlRequest.create);
 // Ver todos los requests
 router.get('/getAll', jwtHelper.verifyJwtToken, ctrlRequest.getAll);
 
-//cer todos los request del admin
+// Ver todos los request del admin
 router.get('/getAllAdmin', jwtHelper.verifyJwtToken, ctrlRequest.getAllAdmin);
 
 router.get('/getById/:id', ctrlRequest.getById);

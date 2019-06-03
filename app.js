@@ -18,14 +18,33 @@ var io = require('socket.io')(http);
 app.use(bodyParser.json());
 app.use(cors());
 app.use(passport.initialize());
-
+const jwt = require('jsonwebtoken');
 //Api
 app.use('/api', rtsIndex);
 app.use('/api/request', requestRoutes);
 
 const Notifications = require('./socket/notifications')
 
+// middleware
+io.use((socket, next) => {
+    let token = socket.handshake.query.token;
+
+    jwt.verify(token, process.env.JWT_SECRET,
+        (err, decoded) => {
+            if (err)
+                return next(new Error('authentication error'));
+            else {
+                socket._id = decoded._id;
+                next();
+            }
+        }
+    )
+});
+
+
+//SOCKET CONECCTION
 io.on('connection', function(socket) {
+    console.log('a user connected');
     Notifications.newNotifications(socket, io)
 });
 

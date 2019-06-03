@@ -6,6 +6,7 @@ const jwtHelper = require('../config/jwtHelper');
 
 router.post('/register', ctrlUser.register);
 router.get('/users', ctrlUser.getAllUsers);
+
 router.get('/', (req, res) => {
     res.send("hola mundo");
 });
@@ -17,4 +18,3 @@ router.get('/userProfile',jwtHelper.verifyJwtToken, ctrlUser.userProfile);
 router.post('/user/update', jwtHelper.verifyJwtToken, ctrlUser.getUserAndUpdate);
 
 module.exports = router;
-
