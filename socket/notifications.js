@@ -1,37 +1,28 @@
 require('../models/db');
 
 const Notification = require("../models/notification.model");
+var ObjectID = require('mongodb').ObjectID;
 
 module.exports.newNotifications = (cliente, io)  => {
-
     cliente.on('notifications', (payload) => {
-        console.log('emitiendo');
+
         const NotificationSchema = new Notification ({
-          sender: cliente._id, // Notification creator
+          sender: payload.userId, // Notification creator
           receiver: payload.receiver, // Ids of the receivers of the notification
           message: payload.message, // any description of the notification message
           seen: payload.seen
         });
 
-        NotificationSchema.save()
-
-        Notification.find({ receiver: cliente._id })
-        .populate('sender')
-        .populate('receiver')
-
-        .exec((err, doc) => {
-          io.emit('new-notifications', doc);
+        NotificationSchema.save((err, doc) => {
+           if(err) {
+             console.log('error creando notificacion' + err);
+           }
+           Notification.populate(doc, { path: 'sender' }, (err, newNotification) => {
+              if(err) {
+                console.log('Error in populate notification: ' + err)
+              }
+              io.emit('new-notifications', newNotification);
+           })
         })
     });
-
-    cliente.on('listen-notifications', () => {
-        console.log('escuchando notificaciones');
-        Notification.find({ receiver: cliente._id })
-        .populate('sender')
-        .populate('receiver')
-
-        .exec((err, doc) => {
-          io.emit('new-notifications', doc);
-        })
-    })
 }

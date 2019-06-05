@@ -99,8 +99,9 @@ module.exports.register = (req, res, next) => {
     });
 }
 
-//Metodo para crear un nuevo usuario y asignarle la solitud
+// Metodo para crear un nuevo usuario y asignarle la solitud
 module.exports.registerAndPostRequest = (req, res, next) => {
+
     var user = new User({
       name: req.body.user.nombre,
       lastName: req.body.user.apellido,
@@ -119,15 +120,15 @@ module.exports.registerAndPostRequest = (req, res, next) => {
        mensaje: req.body.request.mensaje
     });
 
-    //Asignar operador
-    User.find({role:'ADMIN'} ,(err, users) => {
+    //Asignar comercial de 24/7
+    User.find({ role: 'ADMIN' }, (err, users) => {
         if(err) {
             res.status(400).send({
               isError: true,
               mensaje: "Error buscando un usuarios adminitradores"
             })
         }
-        request.operadorId = users[Math.floor(Math.random() * users.length)]._id
+        request.operadorId = users[Math.floor(Math.random() * users.length)]._id;
     })
 
     user.save((err, doc) => {
@@ -150,8 +151,7 @@ module.exports.registerAndPostRequest = (req, res, next) => {
                 });
 
             })
-        }
-        else {
+        } else {
             if (err.code == 11000) {
                 res.status(422).send(['Ya existe una cuenta']);
             }
