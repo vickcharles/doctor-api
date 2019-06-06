@@ -9,4 +9,3 @@ const jwtHelper = require('../config/jwtHelper');
 router.get('/getAll', jwtHelper.verifyJwtToken, ctrlNotification.getAll);
 
 module.exports = router;
-

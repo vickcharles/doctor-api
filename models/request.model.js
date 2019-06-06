@@ -19,6 +19,8 @@ const requestSchema = new mongoose.Schema({
   origen: String,
   destino: String,
 	mensaje: String,
+	created_at: { type: Date, default: Date.now },
+	updated_at: { type: Date, default: Date.now },
 	estado: {
 		type: String,
 		default: 'recibido'

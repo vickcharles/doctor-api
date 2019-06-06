@@ -22,17 +22,40 @@ module.exports.create = (req, res, next) => {
         }
         newRequest.operadorId = users[Math.floor(Math.random() * users.length)]._id;
         newRequest.save((err, doc) => {
+
             if(err) {
                 res.status(400).send({
                   isError: true,
                   mensaje: "Error crenado un nuevo request" + err
                 })
             }
-            res.status(200).send({
-                isError: false,
-                mensaje: "Request creado satisfactoriamete",
-                request: doc
-            })
+
+            Request.populate(doc, { path: 'usuario' }, (err, doc) => {
+                if(err) {
+                    res.status(400).send({
+                      isError: true,
+                      mensaje: "Error populando un nuevo request" + err
+                    })
+                }
+                Request.populate(doc, { path: 'operadorId' }, (err, doc) => {
+                    if(err) {
+                        res.status(400).send({
+                          isError: true,
+                          mensaje: "Error populando un nuevo request" + err
+                        })
+                    }
+
+                    res.status(200).send({
+                        isError: false,
+                        mensaje: "Request creado satisfactoriamete",
+                        request: doc
+                    })
+                })
+
+
+            });
+
+
          })
     })
 
@@ -40,6 +63,7 @@ module.exports.create = (req, res, next) => {
 
 module.exports.getAll = (req, res, next) => {
     Request.find({usuario: req._id})
+    .sort({created_at: -1})
     .populate("operadorId")
     .exec((err, doc) => {
         if(err) {
@@ -59,6 +83,7 @@ module.exports.getAll = (req, res, next) => {
 
 module.exports.getAllByStatus = (req, res, next) => {
     Request.find({ usuario: req._id, estado: req.body.status })
+    .sort({created_at: -1})
     .populate("operadorId")
     .exec((err, doc) => {
         if(err) {
@@ -80,6 +105,7 @@ module.exports.getAllByStatus = (req, res, next) => {
 
 module.exports.getAllAdmin = (req, res, next) => {
     Request.find({operadorId: req._id})
+    .sort({created_at: -1})
     .populate("usuario")
     .exec((err, doc) => {
         if(err) {
@@ -99,6 +125,7 @@ module.exports.getAllAdmin = (req, res, next) => {
 
 module.exports.getAllAdminByStatus = (req, res, next) => {
     Request.find({operadorId: req._id, estado: req.body.status})
+    .sort({created_at: -1})
     .populate("usuario")
     .exec((err, doc) => {
         if(err) {
@@ -116,6 +143,7 @@ module.exports.getAllAdminByStatus = (req, res, next) => {
 };
 
 module.exports.updateRequestStatus = (req, res, next) => {
+
     Request.findOne({ _id: req.params.id })
     .exec((err, request) => {
         if(err) {
@@ -125,6 +153,7 @@ module.exports.updateRequestStatus = (req, res, next) => {
             })
            }
         request.estado = req.body.status;
+        request.created_at == request.created_at;
         request.save((err, request) => {
             if(err) {
                 res.status(400).send({

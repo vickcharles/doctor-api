@@ -107,7 +107,7 @@ module.exports.registerAndPostRequest = (req, res, next) => {
       lastName: req.body.user.apellido,
       cellPhone: req.body.user.telefono,
       city: req.body.user.ciudad,
-      role: 'USER',
+      role: 'User',
       email: req.body.user.correo,
       password: req.body.user.contrasena
     });
@@ -135,6 +135,7 @@ module.exports.registerAndPostRequest = (req, res, next) => {
         if(!err) {
             request.usuario = doc._id;
             request.save((err, request) => {
+
                 if(err) {
                     res.send({
                        isError: true,
@@ -142,14 +143,34 @@ module.exports.registerAndPostRequest = (req, res, next) => {
                        err: err
                     });
                 }
-                request.populate('usuario')
-                res.send({
-                  isError: false,
-                  mensaje: "Usuario y Solicitud creado satisfactoriamente",
-                  request: request,
-                  token: doc.generateJwt()
-                });
 
+                Request.populate(request, { path: 'operadorId' }, (err, req) => {
+                    if(err) {
+                        res.send({
+                           isError: true,
+                           mensaje: "Hubo un error populando (operadoriD)request",
+                           err: err
+                        });
+                    }
+
+                    Request.populate(req, { path: 'usuario' }, (err, saverequest) => {
+                        if(err) {
+                            res.send({
+                               isError: true,
+                               mensaje: "Hubo un error populando (usuario) request",
+                               err: err
+                            });
+                        }
+
+                        res.status(200).send({
+                          isError: false,
+                          mensaje: "Usuario y Solicitud creado satisfactoriamente",
+                          request: saverequest,
+                          token: doc.generateJwt()
+                        });
+                    })
+
+                })
             })
         } else {
             if (err.code == 11000) {
