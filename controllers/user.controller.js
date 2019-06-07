@@ -32,21 +32,21 @@ module.exports.getUserAndUpdate = (req, res, next) => {
       cellPhone: req.body.telefono
     }
 
-    User.findOneAndUpdate(userId, user, function(error, user) {
+    User.findByIdAndUpdate(userId, user, function(error, newUser) {
        if(error){
-        res.status(400).send({
-          isError: true,
-          mensaje: 'Error actualizando el usuario',
-          error
-        })
+          res.status(400).send({
+            isError: true,
+            mensaje: 'Error actualizando el usuario',
+            error
+          })
        } else {
-        res.status(200).send({
-          isError: true,
-          mensaje: 'Usuario actualizado satisfactoriemnete',
-          user: user
-        })
+            res.status(200).send({
+              isError: false,
+              mensaje: 'Usuario actualizado satisfactoriamente',
+              user: newUser
+           });
        }
-     });
+    });
 }
 
 module.exports.getAllAdminUsers = (req, res, next) => {

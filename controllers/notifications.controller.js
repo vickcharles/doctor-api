@@ -11,10 +11,11 @@ module.exports.getAll = (req, res) => {
               mensaje: "Error buscando notificaciones"
             })
         }
+
         res.status(200).send({
            isError: false,
            notifications: doc
         })
 
-    })
+    });
 }
