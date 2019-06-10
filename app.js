@@ -42,8 +42,7 @@ const Notifications = require('./socket/notifications')
 // });
 
 
-io.sockets
-  .on('connection', socketioJwt.authorize({
+io.sockets.on('connection', socketioJwt.authorize({
     secret: 'SECRET#123',
     timeout: 15000 // 15 seconds to send the authentication message
   })).on('authenticated', function(socket) {

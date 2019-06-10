@@ -101,6 +101,26 @@ module.exports.getAllByStatus = (req, res, next) => {
 };
 
 
+module.exports.getAllHistorial = (req, res, next) => {
+    Request.find({ operadorId: req._id, $or: [{estado: 'cancelada'}, {estado: 'completada'}]})
+    .sort({created_at: -1})
+    .populate("operadorId")
+    .exec((err, doc) => {
+        if(err) {
+            res.status(400).send({
+              isError: true,
+              mensaje: "Error crenado un nuevo request"
+            })
+        }
+        res.status(200).send({
+          isError: false,
+          mensaje: "Todos los requests",
+          requests: doc
+        })
+    })
+};
+
+
 // Admin
 
 module.exports.getAllAdmin = (req, res, next) => {
@@ -154,6 +174,7 @@ module.exports.updateRequestStatus = (req, res, next) => {
            }
         request.estado = req.body.status;
         request.created_at == request.created_at;
+
         request.save((err, request) => {
             if(err) {
                 res.status(400).send({

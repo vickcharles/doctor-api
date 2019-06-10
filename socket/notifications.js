@@ -6,6 +6,7 @@ var ObjectID = require('mongodb').ObjectID;
 module.exports.newNotifications = (cliente, io)  => {
     cliente.on('notifications', (payload) => {
       console.log("emitiendo")
+
         const NotificationSchema = new Notification ({
           sender: payload.userId, // Notification creator
           receiver: payload.receiver, // Ids of the receivers of the notification
@@ -21,7 +22,6 @@ module.exports.newNotifications = (cliente, io)  => {
               if(err) {
                 console.log('Error in populate notification: ' + err)
               }
-            
               io.emit('new-notifications', newNotification);
            })
         })

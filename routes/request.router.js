@@ -15,6 +15,8 @@ router.get('/getAll', jwtHelper.verifyJwtToken, ctrlRequest.getAll);
 // Ver todos los request del admin
 router.get('/getAllAdmin', jwtHelper.verifyJwtToken, ctrlRequest.getAllAdmin);
 
+router.get('/historial', jwtHelper.verifyJwtToken, ctrlRequest.getAllHistorial);
+
 router.get('/getById/:id', ctrlRequest.getById);
 
 router.put('/update/status/:id', ctrlRequest.updateRequestStatus);
