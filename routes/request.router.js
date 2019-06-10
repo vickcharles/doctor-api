@@ -22,4 +22,3 @@ router.get('/getById/:id', ctrlRequest.getById);
 router.put('/update/status/:id', ctrlRequest.updateRequestStatus);
 
 module.exports = router;
-
