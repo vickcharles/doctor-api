@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
 
 router.post('/servidor/sumar', (req, res) => {
   let numero1 = req.body.numero1;
-  let numero2 = req.body.numero1;
+  let numero2 = req.body.numero2;
 
   res.status(200).send({
     resultado: numero1 + numero2
