@@ -132,9 +132,7 @@ module.exports.registerAndPostRequest = (req, res, next) => {
     })
 
     user.save((err, doc) => {
-        if (err.code == 11000) {
-            res.status(422).send(['Ya existe una cuenta']);
-        } else if(!err) {
+        if(!err) {
             request.usuario = doc._id;
             request.save((err, request) => {
 
@@ -175,7 +173,11 @@ module.exports.registerAndPostRequest = (req, res, next) => {
                 })
             })
         } else {
-           return next(err);
+            if (err.code == 11000) {
+                res.status(422).send(['Ya existe una cuenta']);
+            }
+            else
+                return next(err);
         }
     });
 }
