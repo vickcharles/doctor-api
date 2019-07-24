@@ -142,7 +142,6 @@ module.exports.registerAndPostRequest = (req, res, next) => {
                 if(!err) {
                     request.usuario = doc._id;
                     request.save((err, request) => {
-        
                         if(err) {
                             res.send({
                                isError: true,
@@ -150,7 +149,6 @@ module.exports.registerAndPostRequest = (req, res, next) => {
                                err: err
                             });
                         }
-        
                         Request.populate(request, { path: 'operadorId' }, (err, req) => {
                             if(err) {
                                 res.send({
