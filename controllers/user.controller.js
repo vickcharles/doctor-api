@@ -135,7 +135,6 @@ module.exports.registerAndPostRequest = (req, res, next) => {
         if(err) {
           console.log(err);
         }
-        var message;
         if(user) {
             res.status(422).send(['Ya existe una cuenta']);
         } else {
@@ -180,11 +179,14 @@ module.exports.registerAndPostRequest = (req, res, next) => {
                         })
                     })
                 } else {
-                    return next(err);
+                    if (err.code == 11000) {
+                        res.status(422).send(['Ya este usuario posee una cuenta']);
+                    }
+                    else
+                     return next(err);
                 }
             });
         }
-        res.json({message: message});
     });
 }
 
