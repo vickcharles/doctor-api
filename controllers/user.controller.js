@@ -102,7 +102,7 @@ module.exports.register = (req, res, next) => {
 // Metodo para crear un nuevo usuario y asignarle la solitud
 module.exports.registerAndPostRequest = (req, res, next) => {
 
-    var user = new User({
+    var userToSave = new User({
       name: req.body.user.nombre,
       lastName: req.body.user.apellido,
       cellPhone: req.body.user.telefono,
@@ -138,7 +138,7 @@ module.exports.registerAndPostRequest = (req, res, next) => {
         if(user) {
             res.status(422).send(['Ya existe una cuenta']);
         } else {
-            user.save((err, doc) => {
+            userToSave.save((err, doc) => {
                 if(!err) {
                     request.usuario = doc._id;
                     request.save((err, request) => {
