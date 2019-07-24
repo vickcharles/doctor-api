@@ -131,54 +131,61 @@ module.exports.registerAndPostRequest = (req, res, next) => {
         request.operadorId = users[Math.floor(Math.random() * users.length)]._id;
     })
 
-    user.save((err, doc) => {
-        if(!err) {
-            request.usuario = doc._id;
-            request.save((err, request) => {
-
-                if(err) {
-                    res.send({
-                       isError: true,
-                       mensaje: "Hubo un error creando el Request",
-                       err: err
-                    });
-                }
-
-                Request.populate(request, { path: 'operadorId' }, (err, req) => {
-                    if(err) {
-                        res.send({
-                           isError: true,
-                           mensaje: "Hubo un error populando (operadoriD)request",
-                           err: err
-                        });
-                    }
-
-                    Request.populate(req, { path: 'usuario' }, (err, saverequest) => {
+    User.findOne({email: req.body.user.correo}, function(err, user){
+        if(err) {
+          console.log(err);
+        }
+        var message;
+        if(user) {
+            res.status(422).send(['Ya existe una cuenta']);
+        } else {
+            user.save((err, doc) => {
+                if(!err) {
+                    request.usuario = doc._id;
+                    request.save((err, request) => {
+        
                         if(err) {
                             res.send({
                                isError: true,
-                               mensaje: "Hubo un error populando (usuario) request",
+                               mensaje: "Hubo un error creando el Request",
                                err: err
                             });
                         }
+        
+                        Request.populate(request, { path: 'operadorId' }, (err, req) => {
+                            if(err) {
+                                res.send({
+                                   isError: true,
+                                   mensaje: "Hubo un error populando (operadoriD)request",
+                                   err: err
+                                });
+                            }
+        
+                            Request.populate(req, { path: 'usuario' }, (err, saverequest) => {
+                                if(err) {
+                                    res.send({
+                                       isError: true,
+                                       mensaje: "Hubo un error populando (usuario) request",
+                                       err: err
+                                    });
+                                }
+        
+                                res.status(200).send({
+                                  isError: false,
+                                  mensaje: "Usuario y Solicitud creado satisfactoriamente",
+                                  request: saverequest,
+                                  token: doc.generateJwt()
+                                });
+                            })
 
-                        res.status(200).send({
-                          isError: false,
-                          mensaje: "Usuario y Solicitud creado satisfactoriamente",
-                          request: saverequest,
-                          token: doc.generateJwt()
-                        });
+                        })
                     })
-
-                })
-            })
-        } else {
-            if (err.code == 11000) {
-                res.status(422).send(['Ya existe una cuenta']);
-            }
-            else
-                return next(err);
+                } else {
+                        return next(err);
+                }
+            });
         }
+        res.json({message: message});
     });
 }
 

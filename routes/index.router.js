@@ -18,7 +18,7 @@ router.post('/servidor/sumar', (req, res) => {
 
   res.status(200).send({
     resultado: numero1 + numero2
- })
+  })
 });
 
 router.get('/users/admin', ctrlUser.getAllAdminUsers);
