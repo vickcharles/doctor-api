@@ -136,7 +136,10 @@ module.exports.registerAndPostRequest = (req, res, next) => {
           console.log(err);
         }
         if(user) {
-            res.status(422).send(['Ya existe una cuenta']);
+            res.status(422).send({
+             isError: true,
+             mensaje: "Error buscando un usuarios adminitradores"
+            })
         } else {
             userToSave.save((err, doc) => {
                 if(!err) {
