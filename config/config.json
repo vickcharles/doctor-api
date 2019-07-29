@@ -1,6 +1,6 @@
 {
     "development": {
-        "PORT": 8000,
+        "PORT": 8001,
         "MONGODB_URI": "mongodb://localhost:27017/pruebaDB",
         "JWT_SECRET": "SECRET#123",
         "JWT_EXP": "120 days"
