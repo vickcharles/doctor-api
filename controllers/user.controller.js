@@ -3,7 +3,121 @@ const passport = require('passport');
 const _ = require('lodash');
 const User = mongoose.model('User')
 const Request = require('../models/request.model');
+const crypto = require('crypto');
 
+const bcrypt = require('bcryptjs');
+
+const nodemailer = require('nodemailer');
+
+/* Verificar el token del usuario */
+
+module.exports.reset = (req, res, next) => {
+    console.log(req.query.resetPasswordToken);
+    User.findOne({
+       resetPasswordToken: req.query.resetPasswordToken,
+    })
+
+    .then(user => {
+        if(user == null) {
+            res.send({
+               isError: true,
+               message: 'el link para resetear la contraseña es invalido o ha expirado'
+            })
+        } else {
+            res.status(200).send({
+              id: user._id,
+              message: 'password link is ok'
+            });
+        }
+    })
+}
+
+module.exports.updatePasswordViaEmail = (req, res) => {
+  User.findById(req.body.userID)
+  .then(user => {
+    if(user == null) {
+        res.send({
+          message: 'este usuario no existe'
+        });
+    } else {
+        user.password = req.body.password;
+        user.resetPasswordToken = null;
+        user.resetPasswordExpire = null;
+        user.save()
+
+        .then(user => {
+          res.send({
+            message: 'contraseña actualizada',
+            user: user.email,
+            password: user.password
+          });
+        });
+    }
+  })
+}
+
+module.exports.forgotPassword = (req, res, next) => {
+  if (req.body.email == '') {
+    res.json('email required');
+  };
+
+  console.log(req.body.email)
+
+  User.findOne({
+      email: req.body.email
+  })
+
+  .then(user => {
+      if(user == null) {
+        res.send({
+            isError: true,
+            message: 'correo electronico no registrado'
+        })
+      } else {
+
+        const token = crypto.randomBytes(20).toString('hex');
+        console.log(token);
+        user.resetPasswordToken = token
+        user.resetPasswordExpire = Date.now() + 360000
+
+        user.save();
+
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: 'charlesvikler@gmail.com',
+            pass: '04261566242'
+            }
+        })
+
+
+        const mailOptions = {
+          from: 'charlesvikler@gmail.com',
+          to: `${user.email}`,
+          subject: '[24/7 logistic solutions] Restablecer contraseña',
+          text:
+          `Hola ${user.name} \n \n` +
+          `Este es tu link para restablecer tu contraseña http://localhost:4200/reset-password/${token} \n \n` +
+          `Si no solicitó una nueva contraseña, ¡lo sentimos! Puedes ignorar este mensaje.`
+        }
+
+        console.log('sending email');
+        transporter.sendMail(mailOptions, (err, response) => {
+          if(err) {
+            res.send({
+                isError: true,
+                message: 'error enviando correo electrónico'
+              })
+           } else {
+              res.send({
+                isError: false,
+                message: 'correo electronico enviado'
+              })
+           }
+        });
+      }
+  });
+};
 
 module.exports.getAllUsers = (req, res, next) => {
   User.find((err, users) => {
@@ -26,11 +140,11 @@ module.exports.getUserAndUpdate = (req, res, next) => {
     var userId = req._id;
 
     let user = {
-      name:req.body.nombre,
+      name: req.body.nombre,
       lastName: req.body.apellido,
       city: req.body.ciudad,
       cellPhone: req.body.telefono
-    }
+    };
 
     User.findByIdAndUpdate(userId, user, function(error, newUser) {
        if(error){
@@ -91,7 +205,7 @@ module.exports.register = (req, res, next) => {
         }
         else {
             if (err.code == 11000) {
-                res.status(422).send(['Ya este usuario posee una cuenta']);
+                res.status(422).send(['usted ya posee una cuenta']);
             }
             else
               return next(err);

@@ -13,6 +13,8 @@ var userSchema = new mongoose.Schema({
     city: String,
     email: String,
     password: String,
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
     saltSecret: String
 },
 {
