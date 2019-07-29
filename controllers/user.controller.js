@@ -12,6 +12,7 @@ const nodemailer = require('nodemailer');
 /* Verificar el token del usuario */
 
 module.exports.reset = (req, res, next) => {
+    console.log(req.query.resetPasswordToken);
     User.findOne({
        resetPasswordToken: req.query.resetPasswordToken,
     })
@@ -19,6 +20,7 @@ module.exports.reset = (req, res, next) => {
     .then(user => {
         if(user == null) {
             res.send({
+               isError: true,
                message: 'el link para resetear la contraseña es invalido o ha expirado'
             })
         } else {
@@ -68,6 +70,7 @@ module.exports.forgotPassword = (req, res, next) => {
   .then(user => {
       if(user == null) {
         res.send({
+            isError: true,
             message: 'correo electronico no registrado'
         })
       } else {
@@ -91,18 +94,23 @@ module.exports.forgotPassword = (req, res, next) => {
         const mailOptions = {
           from: 'charlesvikler@gmail.com',
           to: `${user.email}`,
-          subject: 'Link to reset password',
+          subject: '[24/7 logistic solutions] Restablecer contraseña',
           text:
-          `hola, este es tu link para resetear contraseña \n \n` +
-          `http://localhost:4210/reset/${token}`
+          `Hola ${user.name} \n \n` +
+          `Este es tu link para restablecer tu contraseña http://localhost:4200/reset-password/${token} \n \n` +
+          `Si no solicitó una nueva contraseña, ¡lo sentimos! Puedes ignorar este mensaje.`
         }
 
         console.log('sending email');
         transporter.sendMail(mailOptions, (err, response) => {
           if(err) {
-            console.error('there was an error ' + err)
+            res.send({
+                isError: true,
+                message: 'error enviando correo electrónico'
+              })
            } else {
               res.send({
+                isError: false,
                 message: 'correo electronico enviado'
               })
            }
@@ -132,11 +140,11 @@ module.exports.getUserAndUpdate = (req, res, next) => {
     var userId = req._id;
 
     let user = {
-      name:req.body.nombre,
+      name: req.body.nombre,
       lastName: req.body.apellido,
       city: req.body.ciudad,
       cellPhone: req.body.telefono
-    }
+    };
 
     User.findByIdAndUpdate(userId, user, function(error, newUser) {
        if(error){
@@ -197,7 +205,7 @@ module.exports.register = (req, res, next) => {
         }
         else {
             if (err.code == 11000) {
-                res.status(422).send(['Ya este usuario posee una cuenta']);
+                res.status(422).send(['usted ya posee una cuenta']);
             }
             else
               return next(err);
