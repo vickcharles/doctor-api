@@ -10,7 +10,7 @@ const jwtHelper = require('../config/jwtHelper');
 router.post('/forgotPassword', ctrlUser.forgotPassword);
 
 router.get('/reset', ctrlUser.reset);
-router.get('/updatePassword', ctrlUser.updatePasswordViaEmail);
+router.post('/updatePassword', ctrlUser.updatePasswordViaEmail);
 
 /*-------------*/
 router.post('/register', ctrlUser.register);

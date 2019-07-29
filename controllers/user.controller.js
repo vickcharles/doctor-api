@@ -33,6 +33,7 @@ module.exports.reset = (req, res, next) => {
 }
 
 module.exports.updatePasswordViaEmail = (req, res) => {
+    console.log(req.body.userID);
   User.findById(req.body.userID)
   .then(user => {
     if(user == null) {
