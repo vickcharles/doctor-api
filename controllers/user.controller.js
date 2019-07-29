@@ -104,9 +104,10 @@ module.exports.forgotPassword = (req, res, next) => {
         console.log('sending email');
         transporter.sendMail(mailOptions, (err, response) => {
           if(err) {
+            console.log(err);
             res.send({
                 isError: true,
-                message: 'error enviando correo electrónico'
+                message: 'Error enviando correo electrónico'
               })
            } else {
               res.send({
