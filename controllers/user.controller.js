@@ -97,7 +97,7 @@ module.exports.forgotPassword = (req, res, next) => {
           subject: '[24/7 logistic solutions] Restablecer contraseña',
           text:
           `Hola ${user.name} \n \n` +
-          `Este es tu link para restablecer tu contraseña http://localhost:4200/reset-password/${token} \n \n` +
+          `Este es tu link para restablecer tu contraseña https://www.24-7ls.com/reset-password/${token} \n \n` +
           `Si no solicitó una nueva contraseña, ¡lo sentimos! Puedes ignorar este mensaje.`
         }
 
