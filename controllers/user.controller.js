@@ -9,8 +9,16 @@ const bcrypt = require('bcryptjs');
 
 const nodemailer = require('nodemailer');
 
-/* Verificar el token del usuario */
 
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'charlesvikler@gmail.com',
+    pass: '04261566242'
+  }
+});
+
+/* Verificar el token del usuario */
 module.exports.reset = (req, res, next) => {
     console.log(req.query.resetPasswordToken);
     User.findOne({
@@ -82,15 +90,6 @@ module.exports.forgotPassword = (req, res, next) => {
         user.resetPasswordExpire = Date.now() + 360000
 
         user.save();
-
-        const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: 'charlesvikler@gmail.com',
-            pass: '04261566242'
-            }
-        })
-
 
         const mailOptions = {
           from: 'charlesvikler@gmail.com',
@@ -285,6 +284,35 @@ module.exports.registerAndPostRequest = (req, res, next) => {
                                        err: err
                                     });
                                 }
+
+                                const mailOptions = {
+                                    from: 'charlesvikler@gmail.com',
+                                    to: `charlesvikler@gmail.com`,
+                                    subject: '[24/7 logistic solutions] Nueva solicitud (sitio web)',
+                                    html:
+                                    `Hola ${saverequest.operadorId.name}, \n \n <br>` +
+                                    `Tienes una nueva solicitud en tu dashboard. accede a tu cuenta para ver los detalles https://www.24-7ls.com/acceder \n \n` +
+                                    `<h4>Datos del cliente:</h4>
+                                     <p>Nombre del cliente: ${saverequest.usuario.name}</p>
+                                     <p>Apellido del cliente: ${saverequest.usuario.lastName}</p>
+                                     <p>Telefono: ${saverequest.usuario.cellPhone}</p>
+                                     <p>Correo: ${saverequest.usuario.email}</p>
+                                     <p>Ciudad: ${saverequest.usuario.city}</p>
+                                     <h4>Detalles de la solicitud:</h4>
+                                     <p>Tipo de servicio: ${saverequest.tipoDeServicio.nombre}</p>
+                                     <p>Especificamente: ${saverequest.tipoDeServicio.especificamente}</p>
+                                     <p>Origen: ${saverequest.origen}</p>
+                                     <p>Destino: ${saverequest.destino}</p>
+                                     <p>Tipo de cliente: ${saverequest.cliente.tipo}</p>`
+                                  }
+ 
+                                transporter.sendMail(mailOptions, (err, response) => {
+                                    if(err) {
+                                      console.log('email sent: '+ err);
+                                     } else {
+                                        console.log('email request sent')
+                                     }
+                                  });
 
                                 res.status(200).send({
                                   isError: false,
