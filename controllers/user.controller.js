@@ -11,7 +11,9 @@ const nodemailer = require('nodemailer');
 
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: {
     user: 'charlesvikler@gmail.com',
     pass: '04261566242'
@@ -287,7 +289,7 @@ module.exports.registerAndPostRequest = (req, res, next) => {
 
                                 const mailOptions = {
                                     from: 'charlesvikler@gmail.com',
-                                    to: `charlesvikler@gmail.com`,
+                                    to: `${saverequest.operadorId.email}`,
                                     subject: '[24/7 logistic solutions] Nueva solicitud (sitio web)',
                                     html:
                                     `Hola ${saverequest.operadorId.name}, \n \n <br>` +
@@ -308,9 +310,9 @@ module.exports.registerAndPostRequest = (req, res, next) => {
  
                                 transporter.sendMail(mailOptions, (err, response) => {
                                     if(err) {
-                                      console.log('email sent: '+ err);
+                                      console.log('email not sent: '+ err);
                                      } else {
-                                        console.log('email request sent')
+                                       console.log('email request sent')
                                      }
                                   });
 
