@@ -2,44 +2,26 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-var userSchema = new mongoose.Schema({
-    name: String,
-    lastName: String,
-    cellPhone: String,
-    role: {
-	  type: String,
-	  default: 'User'
-	},
-    city: String,
-    email: String,
-    password: String,
-    resetPasswordToken: String,
-    resetPasswordExpire: Date,
-    saltSecret: String
+const userSchema = new mongoose.Schema({
+  name: String,
+  lastName: String,
+  email: String,
+  password: String,
 },
 {
-    timestamps: true
+  timestamps: true
 });
 
-// Custom validation for email
-userSchema.path('email')
-.validate((val) => {
-  emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return emailRegex.test(val);
-}, 'Digite un correo valido.');
-
-// Events
 userSchema.pre('save', function (next) {
     bcrypt.genSalt(10, (err, salt) => {
         bcrypt.hash(this.password, salt, (err, hash) => {
-            this.password = hash;
-            this.saltSecret = salt;
-            next();
+          this.password = hash;
+          this.saltSecret = salt;
+          next();
         });
     });
 });
 
-// Methods
 userSchema.methods.verifyPassword = function (password) {
   return bcrypt.compareSync(password, this.password);
 };

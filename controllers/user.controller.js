@@ -2,13 +2,9 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const _ = require('lodash');
 const User = mongoose.model('User')
-const Request = require('../models/request.model');
 const crypto = require('crypto');
-
 const bcrypt = require('bcryptjs');
-
 const nodemailer = require('nodemailer');
-
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -19,108 +15,6 @@ const transporter = nodemailer.createTransport({
     pass: 'Vi04261566242'
   }
 });
-
-/* Verificar el token del usuario */
-module.exports.reset = (req, res, next) => {
-    console.log(req.query.resetPasswordToken);
-    User.findOne({
-       resetPasswordToken: req.query.resetPasswordToken,
-    })
-
-    .then(user => {
-        if(user == null) {
-            res.send({
-               isError: true,
-               message: 'el link para resetear la contraseña es invalido o ha expirado'
-            })
-        } else {
-            res.status(200).send({
-              id: user._id,
-              message: 'password link is ok'
-            });
-        }
-    })
-}
-
-module.exports.updatePasswordViaEmail = (req, res) => {
-    console.log(req.body.userID);
-  User.findById(req.body.userID)
-  .then(user => {
-    if(user == null) {
-        res.send({
-          message: 'este usuario no existe'
-        });
-    } else {
-        user.password = req.body.password;
-        user.resetPasswordToken = null;
-        user.resetPasswordExpire = null;
-        user.save()
-
-        .then(user => {
-          res.send({
-            message: 'contraseña actualizada',
-            user: user.email,
-            password: user.password
-          });
-        });
-    }
-  })
-}
-
-module.exports.forgotPassword = (req, res, next) => {
-  if (req.body.email == '') {
-    res.json('email required');
-  };
-
-  console.log(req.body.email)
-
-  User.findOne({
-      email: req.body.email
-  })
-
-  .then(user => {
-      if(user == null) {
-        res.send({
-            isError: true,
-            message: 'correo electronico no registrado'
-        })
-      } else {
-
-        const token = crypto.randomBytes(20).toString('hex');
-        console.log(token);
-        user.resetPasswordToken = token
-        user.resetPasswordExpire = Date.now() + 360000
-
-        user.save();
-
-        const mailOptions = {
-          from: 'charlesvikler@gmail.com',
-          to: `${user.email}`,
-          subject: '[24/7 logistic solutions] Restablecer contraseña',
-          text:
-          `Hola ${user.name} \n \n` +
-          `Este es tu link para restablecer tu contraseña https://www.24-7ls.com/reset-password/${token} \n \n` +
-          `Si no solicitó una nueva contraseña, ¡lo sentimos! Puedes ignorar este mensaje.`
-        }
-
-        console.log('sending email');
-        transporter.sendMail(mailOptions, (err, response) => {
-          if(err) {
-            console.log(err);
-            res.send({
-                isError: true,
-                message: 'Error enviando correo electrónico'
-              })
-           } else {
-              res.send({
-                isError: false,
-                message: 'correo electronico enviado'
-              })
-           }
-        });
-      }
-  });
-};
 
 module.exports.getAllUsers = (req, res, next) => {
   User.find((err, users) => {
@@ -134,208 +28,41 @@ module.exports.getAllUsers = (req, res, next) => {
            isError: false,
            mensaje: 'Exitosamente',
            users: users
-        })
+        });
     }
   })
 }
 
-module.exports.getUserAndUpdate = (req, res, next) => {
-    var userId = req._id;
-
-    let user = {
-      name: req.body.nombre,
-      lastName: req.body.apellido,
-      city: req.body.ciudad,
-      cellPhone: req.body.telefono
-    };
-
-    User.findByIdAndUpdate(userId, user, function(error, newUser) {
-       if(error){
-          res.status(400).send({
-            isError: true,
-            mensaje: 'Error actualizando el usuario',
-            error
-          })
-       } else {
-            res.status(200).send({
-              isError: false,
-              mensaje: 'Usuario actualizado satisfactoriamente',
-              user: newUser
-           });
-       }
-    });
-}
-
-module.exports.getAllAdminUsers = (req, res, next) => {
-    User.find({role: 'ADMIN'}, (err, users) => {
-      if(err) {
-         res.status(400).send({
-           isError: true,
-           mensaje: 'error buscando usuarios'
-        })
-      } else {
-        res.status(200).send({
-            isError: false,
-            mensaje: 'exitosamente',
-            users: users[Math.floor(Math.random() * users.length)]._id
-        })
-      }
-    })
-}
-
 module.exports.register = (req, res, next) => {
     let user = new User({
-      name: req.body.nombre,
-      lastName: req.body.apellido,
-      cellPhone: req.body.telefono,
-      role: req.body.role,
-      city: req.body.city,
-      email: req.body.correo,
-      password: req.body.contrasena
+      name: req.body.name,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      password: req.body.password
     });
-
-    const credentials = {
-      email: req.body.correo,
-      password: req.body.contrasena
-    };
 
     user.save((err, doc) => {
         if(!err) {
             res.status(200).send({
-             usuario: doc,
-             mensaje: "Usuario registrado satifactoriamente"
+              usuario: doc,
+              token: doc.generateJwt(),
+              mensaje: "Usuario registrado satifactoriamente"
+            });
+        } else if(err){
+            res.send({
+             isError: err,
             });
         }
         else {
-            if (err.code == 11000) {
+           if (err.code == 11000) {
                 res.status(422).send(['usted ya posee una cuenta']);
-            }
+           }
             else
-              return next(err);
+            return next(err);
         }
     });
 }
 
-// Metodo para crear un nuevo usuario y asignarle la solitud
-module.exports.registerAndPostRequest = (req, res, next) => {
-
-    var userToSave = new User({
-      name: req.body.user.nombre,
-      lastName: req.body.user.apellido,
-      cellPhone: req.body.user.telefono,
-      city: req.body.user.ciudad,
-      role: 'User',
-      email: req.body.user.correo,
-      password: req.body.user.contrasena
-    });
-
-    var request = new Request({
-       tipoDeServicio: req.body.request.tipoDeServicio,
-       cliente: req.body.request.cliente,
-       origen: req.body.request.origen,
-       destino: req.body.request.destino,
-       mensaje: req.body.request.mensaje
-    });
-
-    //Asignar comercial de 24/7
-    User.find({ role: 'ADMIN' }, (err, users) => {
-        if(err) {
-            res.status(400).send({
-              isError: true,
-              mensaje: "Error buscando un usuarios adminitradores"
-            })
-        }
-        request.operadorId = users[Math.floor(Math.random() * users.length)]._id;
-    })
-
-    User.findOne({email:  req.body.user.correo}, function(err, user){
-        if(err) {
-          console.log(err);
-        }
-        if(user) {
-            res.status(422).send({
-             isError: true,
-             mensaje: "Error buscando un usuarios adminitradores"
-            })
-        } else {
-            userToSave.save((err, doc) => {
-                if(!err) {
-                    request.usuario = doc._id;
-                    request.save((err, request) => {
-                        if(err) {
-                            res.send({
-                               isError: true,
-                               mensaje: "Hubo un error creando el Request",
-                               err: err
-                            });
-                        }
-                        Request.populate(request, { path: 'operadorId' }, (err, req) => {
-                            if(err) {
-                                res.send({
-                                   isError: true,
-                                   mensaje: "Hubo un error populando (operadoriD)request",
-                                   err: err
-                                });
-                            }
-
-                            Request.populate(req, { path: 'usuario' }, (err, saverequest) => {
-                                if(err) {
-                                    res.send({
-                                       isError: true,
-                                       mensaje: "Hubo un error populando (usuario) request",
-                                       err: err
-                                    });
-                                }
-
-                                const mailOptions = {
-                                    from: 'charlesvikler@gmail.com',
-                                    to: `${saverequest.operadorId.email}`,
-                                    subject: '[24/7 logistic solutions] Nueva solicitud (sitio web)',
-                                    html:
-                                    `Hola ${saverequest.operadorId.name}, \n \n <br>` +
-                                    `Tienes una nueva solicitud en tu dashboard. accede a tu cuenta para ver los detalles https://www.24-7ls.com/acceder \n \n` +
-                                    `<h4>Datos del cliente:</h4>
-                                     <p>Nombre del cliente: ${saverequest.usuario.name}</p>
-                                     <p>Apellido del cliente: ${saverequest.usuario.lastName}</p>
-                                     <p>Telefono: ${saverequest.usuario.cellPhone}</p>
-                                     <p>Correo: ${saverequest.usuario.email}</p>
-                                     <p>Ciudad: ${saverequest.usuario.city}</p>
-                                     <h4>Detalles de la solicitud:</h4>
-                                     <p>Tipo de servicio: ${saverequest.tipoDeServicio.nombre}</p>
-                                     <p>Especificamente: ${saverequest.tipoDeServicio.especificamente}</p>
-                                     <p>Origen: ${saverequest.origen}</p>
-                                     <p>Destino: ${saverequest.destino}</p>
-                                     <p>Tipo de cliente: ${saverequest.cliente.tipo}</p>`
-                                  }
- 
-                                transporter.sendMail(mailOptions, (err, response) => {
-                                    if(err) {
-                                      console.log('email not sent: '+ err);
-                                     } else {
-                                       console.log('email request sent')
-                                     }
-                                  });
-
-                                res.status(200).send({
-                                  isError: false,
-                                  mensaje: "Usuario y Solicitud creado satisfactoriamente",
-                                  request: saverequest,
-                                  token: doc.generateJwt()
-                                });
-                            })
-                        })
-                    })
-                } else {
-                    if (err.code == 11000) {
-                        res.status(422).send(['Ya este usuario posee una cuenta']);
-                    }
-                    else
-                     return next(err);
-                }
-            });
-        }
-    });
-}
 
 module.exports.authenticate = (req, res, next) => {
     // call for passport authentication
@@ -347,7 +74,7 @@ module.exports.authenticate = (req, res, next) => {
         // unknown user or wrong password
         else return res.status(404).json(info);
     })(req, res);
-}
+};
 
 module.exports.userProfile = (req, res, next) => {
     User.findOne({ _id: req._id },
@@ -358,4 +85,4 @@ module.exports.userProfile = (req, res, next) => {
                 return res.status(200).json({ status: true, user: user});
         }
     );
-}
+};

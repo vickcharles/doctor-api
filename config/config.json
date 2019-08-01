@@ -1,12 +1,12 @@
 {
     "development": {
         "PORT": 8001,
-        "MONGODB_URI": "mongodb://localhost:27017/pruebaDB",
+        "MONGODB_URI": "mongodb://localhost:27017/doctorDB",
         "JWT_SECRET": "SECRET#123",
         "JWT_EXP": "120 days"
     },
     "production": {
-        "MONGODB_URI": "mongodb://vickler:Vi04261566242@ds261486.mlab.com:61486/heroku_zfztkrpk",
+        "MONGODB_URI": "mongodb://vickler:Vi04261566242@ds261486.mlab.com:61486/doctorDB",
         "JWT_SECRET": "SECRET#123",
         "JWT_EXP": "120 days"
     }

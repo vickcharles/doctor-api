@@ -8,9 +8,9 @@ const cors = require('cors');
 const passport = require('passport');
 
 const rtsIndex = require('./routes/index.router');
+
 //router
-const requestRoutes = require('./routes/request.router');
-const notificationRouter = require('./routes/notification.router');
+const doctorRoutes = require('./routes/doctors.router');
 
 var app = express();
 var http = require('http').Server(app);
@@ -25,32 +25,7 @@ const jwt = require('jsonwebtoken');
 
 //Api
 app.use('/api', rtsIndex);
-app.use('/api/request', requestRoutes);
-
-app.use('/api/notification', notificationRouter)
-var socketioJwt = require('socketio-jwt');
-
-const Notifications = require('./socket/notifications')
-
-
-
-
-// //SOCKET CONECCTION
-// io.on('connection', function(socket) {
-//     console.log('a user connected');
-//     Notifications.newNotifications(socket, io)
-// });
-
-
-io.sockets.on('connection', socketioJwt.authorize({
-    secret: 'SECRET#123',
-    timeout: 15000 // 15 seconds to send the authentication message
-  })).on('authenticated', function(socket) {
-    Notifications.newNotifications(socket, io)
-    //this socket is authenticated, we are good to handle more events from it.
-    console.log('hello! ' + socket.decoded_token._id);
-  });
-
+app.use('/api/doctors', doctorRoutes);
 
 // error handler
 app.use((err, req, res, next) => {
