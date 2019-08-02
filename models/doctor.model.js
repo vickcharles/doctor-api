@@ -6,14 +6,15 @@ const DoctorSchema = new Schema({
 		type: Schema.ObjectId,
 		ref: "User"
 	},
+	avatar: String,
   bio: String,
-  education: {
+  education: [{
     schoolName: String,
 		graduationYear: String,
 		degreeType: String,
 		fieldOfStudy: String,
 		description: String,
-  }
+  }]
 });
 
 module.exports = mongoose.model('Doctor', DoctorSchema)
