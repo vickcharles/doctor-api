@@ -6,7 +6,7 @@
         "JWT_EXP": "120 days"
     },
     "production": {
-        "MONGODB_URI": "mongodb://vickler:Vi04261566242@ds359077.mlab.com:59077/heroku_wv9zttnn",
+        "MONGODB_URI": "mongodb://vicklerP:Vi04261566242@ds359077.mlab.com:59077/heroku_wv9zttnn",
         "JWT_SECRET": "SECRET#123",
         "JWT_EXP": "120 days"
     }
